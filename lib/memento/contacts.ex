@@ -22,4 +22,9 @@ defmodule Memento.Contacts do
     from(c in Contact, where: ilike(c.full_name, ^name), limit: 1)
     |> Repo.one()
   end
+
+  def todays_birthday do
+    from(c in Contact, where: c.birthdate == ^Date.utc_today())
+    |> Repo.all()
+  end
 end

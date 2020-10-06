@@ -5,6 +5,8 @@ defmodule Memento.Repo.Migrations.CreateContacts do
     create table(:contacts) do
       add(:full_name, :string)
       add(:birthdate, :date)
+
+      timestamps()
     end
   end
 end

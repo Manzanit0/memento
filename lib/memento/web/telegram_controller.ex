@@ -1,12 +1,14 @@
 defmodule Memento.Web.TelegramController do
   alias Memento.Contacts
+  alias Memento.Users
 
   def handle_message(%{"message" => %{"text" => "/contacts:new " <> content}} = body) do
     chat_id = get_chat_id(body)
 
-    with [person, birthdate] <- String.split(content, ":"),
+    with {:ok, user} <- Users.from_telegram_request(body),
+         [person, birthdate] <- String.split(content, ":"),
          date <- parse_birthdate(birthdate),
-         {:ok, _contact} <- Contacts.save(%{full_name: person, birthdate: date}) do
+         {:ok, _contact} <- Contacts.save(%{full_name: person, birthdate: date, user: user}) do
       "Contact saved!"
     else
       _ -> "Sorry... couldn't save the contact."
