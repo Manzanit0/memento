@@ -6,7 +6,11 @@ defmodule Memento.Application do
   def start(_type, _args) do
     children = [
       Memento.Repo,
-      {Memento.Server, [%{}]}
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: Memento.Web.Router,
+        options: [port: 4001]
+      )
     ]
 
     opts = [strategy: :one_for_one, name: Memento.Supervisor]

@@ -2,6 +2,8 @@ defmodule Memento.Web.TelegramController do
   alias Memento.Contacts
   alias Memento.Users
 
+  def handle(%Plug.Conn{body_params: bp}), do: handle_message(bp)
+
   def handle_message(%{"message" => %{"text" => "/contacts:new " <> content}} = body) do
     chat_id = get_chat_id(body)
 
