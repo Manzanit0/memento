@@ -4,13 +4,12 @@ defmodule Memento.Web.TelegramController do
 
   def handle(%Plug.Conn{body_params: bp, assigns: %{user: user}}) do
     try do
-      bp
-      |> handle_message(user)
-      |> to_response(user.chat_id)
-      |> Jason.encode!()
+      handle_message(bp, user)
     rescue
-      err -> to_response("something broke: #{inspect(err)}", user.chat_id) |> Jason.encode!()
+      err -> "Houston, we have an error: #{inspect(err)}"
     end
+    |> to_response(user.chat_id)
+    |> Jason.encode!()
   end
 
   def handle_message(%{"message" => %{"text" => "/contacts:new " <> content}}, user) do
