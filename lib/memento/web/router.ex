@@ -25,7 +25,6 @@ defmodule Memento.Web.Router do
 
   post "/api/telegram" do
     msg = Memento.Web.TelegramController.handle(conn)
-    Logger.debug(msg)
     send_resp(conn, 200, msg)
   end
 

@@ -4,7 +4,7 @@ defmodule Memento.Users.User do
 
   schema "users" do
     field(:chat_id, :string)
-    has_many(:contacts, Memento.Contacts.Contact)
+    has_many(:contacts, Memento.Users.Contact)
 
     timestamps()
   end

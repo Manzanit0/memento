@@ -1,4 +1,4 @@
-defmodule Memento.Contacts.Contact do
+defmodule Memento.Users.Contact do
   use Ecto.Schema
   import Ecto.Changeset
   alias Memento.Repo

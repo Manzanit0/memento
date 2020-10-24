@@ -1,7 +1,9 @@
 defmodule Memento.Reminder do
   use GenServer
 
-  alias Memento.Contacts
+  import Ecto.Query
+  alias Memento.Repo
+  alias Memento.Users.Contact
 
   @default_minutes 3
 
@@ -24,7 +26,7 @@ defmodule Memento.Reminder do
 
   @impl true
   def handle_info(:work, %{minutes: minutes, forever: forever} = state) do
-    Contacts.todays_birthday()
+    todays_birthday()
 
     if forever do
       schedule_work(minutes)
@@ -42,5 +44,10 @@ defmodule Memento.Reminder do
     minutes
     |> :timer.minutes()
     |> Kernel.trunc()
+  end
+
+  def todays_birthday() do
+    from(c in Contact, where: c.birthdate == ^Date.utc_today())
+    |> Repo.all()
   end
 end
