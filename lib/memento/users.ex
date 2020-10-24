@@ -28,7 +28,7 @@ defmodule Memento.Users do
   def add_contact(%User{} = user, attrs) do
     user
     |> Ecto.build_assoc(:contacts, attrs)
-    |> Repo.insert_or_update()
+    |> Repo.insert()
   end
 
   def delete_contact(%User{} = user, contact_name) do

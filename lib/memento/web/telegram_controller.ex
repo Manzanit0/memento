@@ -1,4 +1,5 @@
 defmodule Memento.Web.TelegramController do
+  require Logger
   alias Memento.Users.Contact
   alias Memento.Users
 
@@ -6,7 +7,9 @@ defmodule Memento.Web.TelegramController do
     try do
       handle_message(bp, user)
     rescue
-      err -> "Houston, we have an error: #{inspect(err)}"
+      err ->
+        Logger.warn(err.message)
+        "Houston, we have an error: #{inspect(err)}"
     end
     |> to_response(user.chat_id)
     |> Jason.encode!()
