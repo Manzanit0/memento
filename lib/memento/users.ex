@@ -32,10 +32,9 @@ defmodule Memento.Users do
   end
 
   def delete_contact(%User{} = user, contact_name) do
-    with contact when not is_nil(contact) <- find_contact(user, contact_name) do
-      Repo.delete(contact)
-    else
+    case find_contact(user, contact_name) do
       nil -> {:error, :no_contact}
+      contact -> Repo.delete(contact)
     end
   end
 
