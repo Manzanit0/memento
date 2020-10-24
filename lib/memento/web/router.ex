@@ -6,13 +6,14 @@ defmodule Memento.Web.Router do
   plug(Plug.Logger)
   plug(:match)
 
-  plug(Memento.Web.Middleware.DefaultResponseHeaders)
-
   plug(Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["text/*", "application/*"],
     json_decoder: Jason
   )
+
+  plug(Memento.Web.Middleware.DefaultResponseHeaders)
+  plug(Memento.Web.Middleware.Auth)
 
   plug(:dispatch)
 
@@ -29,7 +30,7 @@ defmodule Memento.Web.Router do
   match(_, do: send_resp(conn, 404, "Nothing found here!"))
 
   defp handle_errors(conn, %{reason: reason} = err) do
-    Logger.warn("error happened: #{reason}", err)
+    Logger.warn("error happened: #{inspect(reason)}", err)
     send_resp(conn, conn.status, "Something went wrong")
   end
 end

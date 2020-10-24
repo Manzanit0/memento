@@ -6,7 +6,7 @@ defmodule Memento.Contacts.Contact do
   schema "contacts" do
     field(:full_name, :string)
     field(:birthdate, :date)
-    belongs_to(:user, Memento.Users.User)
+    belongs_to(:user, Memento.Users.User, on_replace: :raise)
 
     timestamps()
   end
