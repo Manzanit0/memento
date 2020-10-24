@@ -12,7 +12,10 @@ defmodule Memento.Web.Middleware.Auth do
 
   # Telegram chat_id
   def call(%{body_params: %{"message" => %{"from" => %{"id" => chat_id}}}} = conn, _opts) do
-    case Memento.Users.from_chat_id(chat_id) do
+    chat_id
+    |> Integer.to_string()
+    |> Memento.Users.from_chat_id()
+    |> case do
       {:ok, user} ->
         assign(conn, :user, user)
 

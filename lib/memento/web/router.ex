@@ -1,6 +1,7 @@
 defmodule Memento.Web.Router do
   use Plug.Router
   use Plug.ErrorHandler
+  import Plug.Conn
   require Logger
 
   plug(Plug.Logger)
@@ -22,8 +23,9 @@ defmodule Memento.Web.Router do
     send_resp(conn, 200, "pong!")
   end
 
-  post "/telegram" do
+  post "/api/telegram" do
     msg = Memento.Web.TelegramController.handle(conn)
+    Logger.debug(msg)
     send_resp(conn, 200, msg)
   end
 

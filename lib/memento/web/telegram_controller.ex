@@ -1,15 +1,18 @@
 defmodule Memento.Web.TelegramController do
   alias Memento.Contacts
-  alias Memento.Users.User
 
   def handle(%Plug.Conn{body_params: bp, assigns: %{user: user}}) do
-    bp
-    |> handle_message(user)
-    |> to_response(user.chat_id)
-    |> Jason.encode!()
+    try do
+      bp
+      |> handle_message(user)
+      |> to_response(user.chat_id)
+      |> Jason.encode!()
+    rescue
+      err -> to_response("something broke: #{inspect(err)}", user.chat_id) |> Jason.encode!()
+    end
   end
 
-  def handle_message(%{"message" => %{"text" => "/contacts:new " <> content}}, %User{} = user) do
+  def handle_message(%{"message" => %{"text" => "/contacts:new " <> content}}, user) do
     with [person, birthdate] <- String.split(content, ":"),
          date <- parse_birthdate(birthdate),
          {:ok, _contact} <- Contacts.save(%{full_name: person, birthdate: date, user: user}) do
@@ -19,8 +22,8 @@ defmodule Memento.Web.TelegramController do
     end
   end
 
-  def handle_message(%{"message" => %{"text" => "/contacts:delete " <> name}}, _user) do
-    with {:find, contact} when not is_nil(contact) <- {:find, Contacts.find_by_name(name)},
+  def handle_message(%{"message" => %{"text" => "/contacts:delete " <> name}}, user) do
+    with {:find, contact} when not is_nil(contact) <- {:find, Contacts.find_by_name(name, user)},
          {:delete, {:ok, _}} <- {:delete, Contacts.delete(contact)} do
       "Contact deleted!"
     else
@@ -29,8 +32,9 @@ defmodule Memento.Web.TelegramController do
     end
   end
 
-  def handle_message(%{"message" => %{"text" => "/contacts:list"}}, _user) do
-    Contacts.all()
+  def handle_message(%{"message" => %{"text" => "/contacts:list"}}, user) do
+    user
+    |> Contacts.all()
     |> Contacts.pretty_print()
     |> Enum.join("\n")
   end
@@ -40,7 +44,12 @@ defmodule Memento.Web.TelegramController do
   end
 
   defp to_response(message, id),
-    do: %{method: "sendMessage", chat_id: id, text: message, parse_mode: "markdown"}
+    do: %{
+      method: "sendMessage",
+      chat_id: String.to_integer(id),
+      text: message,
+      parse_mode: "markdown"
+    }
 
   defp parse_birthdate(birthdate) do
     birthdate

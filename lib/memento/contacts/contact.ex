@@ -15,7 +15,7 @@ defmodule Memento.Contacts.Contact do
     contact
     |> Repo.preload(:user)
     |> cast(attrs, [:full_name, :birthdate])
-    |> cast_assoc(:user)
+    |> put_assoc(:user, attrs[:user])
     |> validate_required([:user, :full_name, :birthdate])
   end
 end

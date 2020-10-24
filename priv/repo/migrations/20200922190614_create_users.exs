@@ -11,5 +11,7 @@ defmodule Memento.Repo.Migrations.CreateUsers do
     alter table(:contacts) do
       add(:user_id, references(:users), null: false)
     end
+
+    create unique_index(:users, :chat_id)
   end
 end
