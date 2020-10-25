@@ -10,8 +10,29 @@ defmodule Memento.Web.Middleware.Auth do
 
   def init([]), do: false
 
-  # Telegram chat_id
+  # Telegram inline keyboard callback
+  def call(%{body_params: %{"callback_query" => %{"from" => %{"id" => chat_id}}}} = conn, _opts) do
+    authenticate_chat_id(conn, chat_id)
+  end
+
+  # Telegram standard message
   def call(%{body_params: %{"message" => %{"from" => %{"id" => chat_id}}}} = conn, _opts) do
+    authenticate_chat_id(conn, chat_id)
+  end
+
+  def call(conn, _opts) do
+    halt_unauthorised(conn)
+  end
+
+  def halt_unauthorised(conn) do
+    Logger.warn("unauthorised request: #{inspect(conn)}")
+
+    conn
+    |> send_resp(:unauthorized, "unauthorized")
+    |> halt()
+  end
+
+  defp authenticate_chat_id(conn, chat_id) do
     chat_id
     |> Integer.to_string()
     |> Memento.Users.from_chat_id()
@@ -23,13 +44,5 @@ defmodule Memento.Web.Middleware.Auth do
         Logger.warn("unable to assign user: #{inspect(err)}")
         halt_unauthorised(conn)
     end
-  end
-
-  def call(conn, _opts), do: halt_unauthorised(conn)
-
-  def halt_unauthorised(conn) do
-    conn
-    |> send_resp(:unauthorized, "unauthorized")
-    |> halt()
   end
 end
