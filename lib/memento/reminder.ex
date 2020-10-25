@@ -1,53 +1,29 @@
-defmodule Memento.Reminder do
-  use GenServer
+defmodule Memento.BirthdayReminder do
+  @moduledoc """
+  Sends the users a notification per contact when it's the birthday
+  """
 
   import Ecto.Query
   alias Memento.Repo
   alias Memento.Users.Contact
+  alias Memento.Web.Telegram.Notifier
 
-  @default_minutes 3
+  @date_and_month_match_fragment "extract(month from birthdate) = extract(month from CURRENT_DATE) AND extract(day from birthdate) = extract(day from CURRENT_DATE)"
 
-  def start_link(args \\ []) do
-    GenServer.start_link(__MODULE__, to_map(args))
-  end
-
-  defp to_map(args) do
-    %{
-      minutes: Keyword.get(args, :minutes, @default_minutes),
-      forever: Keyword.get(args, :forever, true)
-    }
-  end
-
-  @impl true
-  def init(%{minutes: minutes} = state) do
-    schedule_work(minutes)
-    {:ok, state}
-  end
-
-  @impl true
-  def handle_info(:work, %{minutes: minutes, forever: forever} = state) do
-    todays_birthday()
-
-    if forever do
-      schedule_work(minutes)
-    end
-
-    {:noreply, state}
-  end
-
-  defp schedule_work(minutes) do
-    milliseconds = to_milliseconds(minutes)
-    Process.send_after(self(), :work, milliseconds)
-  end
-
-  defp to_milliseconds(minutes) do
-    minutes
-    |> :timer.minutes()
-    |> Kernel.trunc()
-  end
-
-  def todays_birthday() do
-    from(c in Contact, where: c.birthdate == ^Date.utc_today())
+  def run do
+    from(c in Contact,
+      where: fragment(@date_and_month_match_fragment),
+      preload: [:user]
+    )
     |> Repo.all()
+    |> IO.inspect()
+    |> Enum.map(&notify_birthday/1)
+  end
+
+  defp notify_birthday(%Contact{} = contact) do
+    Notifier.send_message(
+      contact.user,
+      "Hey! Just a gentle reminder - today's #{contact.full_name}'s birthday :)"
+    )
   end
 end

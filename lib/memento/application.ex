@@ -6,6 +6,7 @@ defmodule Memento.Application do
   def start(_type, _args) do
     children = [
       Memento.Repo,
+      Memento.Scheduler,
       Plug.Cowboy.child_spec(
         scheme: :http,
         plug: Memento.Web.Router,

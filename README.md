@@ -12,14 +12,14 @@ remind you promptly :)
 To track a new contact
 
 ```
-> /contacts:new John Doe: 24-02-1987
+> /contacts_new John Doe: 24-02-1987
 Contact saved!
 ```
 
 To check the list:
 
 ```
-> /contacts:list
+> /contacts_list
 John Doe: 24-02-1987
 Jack Smith: 13-11-1998
 ```
@@ -27,6 +27,6 @@ Jack Smith: 13-11-1998
 To remove one:
 
 ```
-> /contacts:delete John Doe
+> /contacts_delete John Doe
 Contact deleted!
 ```

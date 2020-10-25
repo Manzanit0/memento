@@ -13,3 +13,5 @@ config :memento, Memento.Repo,
   database: "",
   # ssl: true,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+config :memento, :telegram_token, System.fetch_env!("TELEGRAM_BOT_TOKEN")
